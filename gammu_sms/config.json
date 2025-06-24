@@ -11,7 +11,6 @@
   "arch": ["armv7", "aarch64", "amd64"],
   "privileged": ["SYS_ADMIN"],
   "devices": ["/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0"],
-  "map": ["config:rw"],
   "options": {},
   "schema": {},
   "ports": {
