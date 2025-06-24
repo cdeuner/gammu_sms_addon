@@ -1,0 +1,20 @@
+{
+  "name": "GSM SMS Gateway",
+  "version": "1.0.0",
+  "slug": "gammu_sms",
+  "description": "Send SMS using a GSM modem via Gammu",
+  "startup": "application",
+  "boot": "auto",
+  "usb": true,
+  "ingress": false,
+  "host_network": true,
+  "arch": ["armv7", "aarch64", "amd64"],
+  "privileged": ["SYS_ADMIN"],
+  "devices": ["/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0"],
+  "map": ["config:rw"],
+  "options": {},
+  "schema": {},
+  "ports": {
+    "5005/tcp": 5005
+  }
+}
