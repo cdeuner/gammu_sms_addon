@@ -1,17 +1,17 @@
-FROM debian:bullseye
+FROM alpine:3.19
 
-# Installer dépendances
-RUN apt-get update && \
-    apt-get install -y gammu gammu-smsd python3 python3-pip && \
-    pip3 install flask && \
-    apt-get clean
+# Installer gammu, python3, pip et dépendances
+RUN apk add --no-cache python3 py3-pip gammu
 
-# Copier les fichiers de l'add-on
-COPY run.py /run.py
+# Installer Flask via pip
+RUN pip3 install flask
+
+# Copier les fichiers nécessaires dans le container
 COPY gammurc /root/.gammurc
+COPY run.py /run.py
 
-# Exposer le port du serveur Flask
+# Exposer le port 5005 pour le serveur Flask
 EXPOSE 5005
 
-# Commande de démarrage
+# Lancer le script Python au démarrage
 CMD ["python3", "/run.py"]
