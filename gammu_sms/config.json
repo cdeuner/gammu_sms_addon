@@ -5,6 +5,7 @@
   "description": "Send SMS using a GSM modem via Gammu",
   "startup": "application",
   "boot": "auto",
+  "apparmor": false,
   "usb": true,
   "ingress": false,
   "host_network": true,
