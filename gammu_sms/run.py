@@ -37,6 +37,7 @@ def send_sms():
                 ['gammu', 'sendsms', 'TEXT', number, '-text', message],
                 capture_output=True,
                 text=True
+                timeout=20  # timeout en secondes (ajustable)
             )
             if result.returncode == 0:
                 success.append(number)
