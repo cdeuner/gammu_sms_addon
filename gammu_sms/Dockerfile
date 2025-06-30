@@ -23,4 +23,6 @@ COPY run.py wsgi.py /app/
 EXPOSE 5005
 
 # Lancer Gunicorn via le Python du venv
-CMD ["/venv/bin/gunicorn", "wsgi:app", "--bind", "0.0.0.0:5005", "--workers", "2"]
+#CMD ["/venv/bin/gunicorn", "wsgi:app", "--bind", "0.0.0.0:5005", "--workers", "2"]
+CMD ["/venv/bin/gunicorn", "wsgi:app", "--bind", "0.0.0.0:5005", "--workers", "2", "--timeout", "60"]
+
