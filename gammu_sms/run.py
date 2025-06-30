@@ -58,5 +58,6 @@ def send_sms():
 
     return jsonify(response), 200 if not errors else 207
 
+# Serveur de dev seulement
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005)
