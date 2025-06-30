@@ -5,6 +5,9 @@ RUN apk add --no-cache \
     python3 py3-pip gammu ca-certificates openssl \
     build-base libffi-dev openssl-dev musl-dev cargo py3-cryptography
 
+# bash provisoire
+RUN apk add bash
+
 # Créer un environnement virtuel
 RUN python3 -m venv /venv
 
