@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import subprocess
 import datetime
 import os
+import threading
 
 app = Flask(__name__)
 LOG_FILE = "/config/addons/gammu_sms/log/sms.log"
@@ -15,6 +16,28 @@ def log_sms(number, message, status, error=None):
             f.write(f"Error: {error}\n")
         f.write("-" * 50 + "\n")
 
+def send_sms_to_numbers(numbers, message):
+    os.makedirs("/config/addons/gammu_sms/log", exist_ok=True)
+    for number in numbers:
+        try:
+            result = subprocess.run(
+                ['gammu', 'sendsms', 'TEXT', number, '-text', message],
+                capture_output=True,
+                text=True,
+                timeout=20
+            )
+            if result.returncode == 0:
+                log_sms(number, message, "Success")
+            else:
+                err_msg = result.stderr.strip()
+                log_sms(number, message, "Failed", err_msg)
+        except subprocess.TimeoutExpired as e:
+            err_msg = f"Timeout expired: {str(e)}"
+            log_sms(number, message, "Timeout", err_msg)
+        except Exception as e:
+            err_msg = str(e)
+            log_sms(number, message, "Exception", err_msg)
+
 @app.route('/send_sms', methods=['POST'])
 def send_sms():
     data = request.json
@@ -27,42 +50,12 @@ def send_sms():
     if not isinstance(numbers, list):
         return jsonify({'error': 'numbers must be a list'}), 400
 
-    os.makedirs("/config/addons/gammu_sms/log", exist_ok=True)
-    success = []
-    errors = []
+    # Lancement de l'envoi en arrière-plan
+    thread = threading.Thread(target=send_sms_to_numbers, args=(numbers, message))
+    thread.start()
 
-    for number in numbers:
-        try:
-            result = subprocess.run(
-                ['gammu', 'sendsms', 'TEXT', number, '-text', message],
-                capture_output=True,
-                text=True,
-                timeout=20  # timeout en secondes
-            )
-            if result.returncode == 0:
-                success.append(number)
-                log_sms(number, message, "Success")
-            else:
-                err_msg = result.stderr.strip()
-                errors.append({'number': number, 'error': err_msg})
-                log_sms(number, message, "Failed", err_msg)
-        except subprocess.TimeoutExpired as e:
-            err_msg = f"Timeout expired: {str(e)}"
-            errors.append({'number': number, 'error': err_msg})
-            log_sms(number, message, "Timeout", err_msg)
-        except Exception as e:
-            err_msg = str(e)
-            errors.append({'number': number, 'error': err_msg})
-            log_sms(number, message, "Exception", err_msg)
+    # Réponse immédiate
+    return jsonify({'status': 'sending', 'numbers': numbers, 'message': message}), 200
 
-    response = {
-        'status': 'ok' if not errors else 'partial failure',
-        'success': success,
-        'errors': errors
-    }
-
-    return jsonify(response), 200 if not errors else 207
-
-# Pour le développement uniquement
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005)
